@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Decentralized Academic Assistant
 
 A blockchain-based academic assistant that combines
@@ -22,7 +21,7 @@ document retrieval.
 - Express.js
 - MetaMask
 - Ethereum Sepolia
-- OpenAI/Ollama
+- OpenAI/Ollama/Mistral AI
 - HTML/CSS/JavaScript
 
 ## Architecture
@@ -49,7 +48,7 @@ cd blockchain_academic_assistant
 ### 2. Install Root Dependencies
 
 ```bash
-cd "to send last"
+cd "project"
 npm install
 ```
 
@@ -126,4 +125,4 @@ python -m http.server 8000
 =======
 # blockchain-academic-assistant
 Decentralized Academic Assistant built with Solidity, Node.js, AI/RAG and Web3 technologies.
->>>>>>> 0c57c310984e31bf320a135c79146e5048d67da6
+# Authors: Nana DIAWARA & Hasna DAOUI
