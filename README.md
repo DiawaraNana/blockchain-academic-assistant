@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Decentralized Academic Assistant
 
 A blockchain-based academic assistant that combines
@@ -122,3 +123,7 @@ python -m http.server 8000
 ![Student verify announcement](screenshots/image-1.png)
 ![chat bot](screenshots/image-2.png)
 ![AI assistant](screenshots/image-4.png)
+=======
+# blockchain-academic-assistant
+Decentralized Academic Assistant built with Solidity, Node.js, AI/RAG and Web3 technologies.
+>>>>>>> 0c57c310984e31bf320a135c79146e5048d67da6
