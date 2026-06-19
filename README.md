@@ -125,4 +125,4 @@ python -m http.server 8000
 =======
 # blockchain-academic-assistant
 Decentralized Academic Assistant built with Solidity, Node.js, AI/RAG and Web3 technologies.
-# Authors: Nana DIAWARA & Hasna DAOUI
+### Authors: Nana DIAWARA & Hasna DAOUI
