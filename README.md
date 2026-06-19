@@ -6,9 +6,8 @@ document retrieval.
 
 ## Features
 
-- Student registration
-- Academic record management
-- Certificate issuance
+- Academic announcement management
+- Acknowledgments of receipt
 - Smart contracts on Ethereum
 - AI/RAG academic assistant
 - Web3 frontend
