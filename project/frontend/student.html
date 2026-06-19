@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AcadChain — Espace Étudiant</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+  :root {
+    --bg: #0c0e12;
+    --bg2: #13161d;
+    --bg3: #1a1e28;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.13);
+    --accent: #4f8aff;
+    --accent2: #7c5cfc;
+    --green: #22d3a5;
+    --red: #f05c6a;
+    --amber: #f0a623;
+    --text: #e8eaf0;
+    --text2: #8c90a0;
+    --text3: #555a6e;
+    --font: 'DM Sans', sans-serif;
+    --mono: 'DM Mono', monospace;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-icon {
+    width: 30px; height: 30px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .logo span { color: var(--text2); font-weight: 300; }
+
+  .wallet-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 100px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .wallet-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  .wallet-btn.connected {
+    border-color: var(--green);
+    color: var(--green);
+  }
+
+  .wallet-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--text3);
+    transition: background 0.3s;
+  }
+
+  .wallet-btn.connected .wallet-dot { background: var(--green); }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    padding: 4px;
+    background: var(--bg2);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+  }
+
+  .nav-tab {
+    padding: 7px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    background: transparent;
+    font-family: var(--font);
+  }
+
+  .nav-tab.active {
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border2);
+  }
+
+  /* ── LAYOUT ── */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - 65px);
+  }
+
+  /* ── PANELS ── */
+  .panel {
+    display: none;
+    width: 100%;
+    height: 100%;
+  }
+  .panel.active { display: flex; }
+
+  /* ── CHAT PANEL ── */
+  #panel-chat {
+    flex-direction: column;
+  }
+
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 24px;
+    height: 100%;
+  }
+
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 0 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--bg3) transparent;
+  }
+
+  .chat-empty {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    color: var(--text3);
+    text-align: center;
+  }
+
+  .chat-empty-icon {
+    width: 56px; height: 56px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+  }
+
+  .chat-empty h3 {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text2);
+  }
+
+  .chat-empty p { font-size: 13px; max-width: 320px; line-height: 1.6; }
+
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .suggestion-chip {
+    padding: 7px 14px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 100px;
+    font-size: 12px;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font);
+  }
+
+  .suggestion-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(79, 138, 255, 0.06);
+  }
+
+  /* messages */
+  .msg {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    animation: fadeUp 0.3s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.user { align-items: flex-end; }
+  .msg.assistant { align-items: flex-start; }
+
+  .msg-bubble {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .msg.user .msg-bubble {
+    background: var(--accent);
+    color: white;
+    border-radius: 16px 16px 4px 16px;
+  }
+
+  .msg.assistant .msg-bubble {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px 16px 16px 4px;
+    color: var(--text);
+  }
+
+  .msg-meta {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  .msg-typing {
+    display: flex; align-items: center; gap: 4px;
+    padding: 14px 18px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px 16px 16px 4px;
+    width: fit-content;
+  }
+
+  .typing-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--text3);
+    animation: bounce 1.2s infinite;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+  }
+
+  /* chat input */
+  .chat-input-area {
+    padding: 16px 0 28px;
+    border-top: 1px solid var(--border);
+  }
+
+  .chat-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+  }
+
+  .chat-input {
+    flex: 1;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    min-height: 48px;
+    max-height: 140px;
+    transition: border-color 0.2s;
+    line-height: 1.5;
+  }
+
+  .chat-input:focus { border-color: var(--accent); }
+  .chat-input::placeholder { color: var(--text3); }
+
+  .send-btn {
+    width: 46px; height: 46px;
+    background: var(--accent);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover { background: #3d7aff; transform: scale(1.04); }
+  .send-btn:disabled { background: var(--bg3); cursor: not-allowed; transform: none; }
+
+  .send-btn svg { width: 18px; height: 18px; }
+
+  /* ── ANNOUNCEMENTS PANEL ── */
+  #panel-announcements {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .panel-inner {
+    max-width: 860px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 32px 24px;
+  }
+
+  .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .panel-title {
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: -0.3px;
+  }
+
+  .filter-chips {
+    display: flex;
+    gap: 6px;
+  }
+
+  .filter-chip {
+    padding: 5px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    border: 1px solid var(--border2);
+    background: transparent;
+    color: var(--text2);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font);
+  }
+
+  .filter-chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: white;
+  }
+
+  .announcements-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ann-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ann-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 3px 0 0 3px;
+  }
+
+  .ann-card[data-cat="exam"]::before { background: var(--red); }
+  .ann-card[data-cat="homework"]::before { background: var(--amber); }
+  .ann-card[data-cat="notice"]::before { background: var(--green); }
+
+  .ann-card:hover { border-color: var(--border2); }
+
+  .ann-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .ann-cat {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: var(--mono);
+  }
+
+  .ann-cat.exam { background: rgba(240, 92, 106, 0.12); color: var(--red); }
+  .ann-cat.homework { background: rgba(240, 166, 35, 0.12); color: var(--amber); }
+  .ann-cat.schedule { background: rgba(79, 138, 255, 0.12); color: var(--accent); }
+  .ann-cat.notice { background: rgba(34, 211, 165, 0.12); color: var(--green); }
+
+  .ann-group {
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text3);
+    margin-left: auto;
+  }
+
+  .ann-content {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+
+  .ann-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ann-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+
+  .ann-meta span { display: flex; align-items: center; gap: 5px; }
+
+  .ack-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-family: var(--font);
+  }
+
+  .ack-btn.pending {
+    background: rgba(79, 138, 255, 0.1);
+    border: 1px solid rgba(79, 138, 255, 0.3);
+    color: var(--accent);
+  }
+
+  .ack-btn.pending:hover { background: rgba(79, 138, 255, 0.18); }
+
+  .ack-btn.done {
+    background: rgba(34, 211, 165, 0.08);
+    border: 1px solid rgba(34, 211, 165, 0.2);
+    color: var(--green);
+    cursor: default;
+  }
+
+  .hash-mini {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .hash-mini span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+  }
+
+  /* ── VERIFY PANEL ── */
+  #panel-verify {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .verify-inner {
+    max-width: 640px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 48px 24px;
+  }
+
+  .verify-title {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    letter-spacing: -0.4px;
+  }
+
+  .verify-sub {
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 36px;
+    line-height: 1.6;
+  }
+
+  .verify-section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .verify-section h3 {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 16px;
+    color: var(--text2);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.7px;
+    font-family: var(--mono);
+  }
+
+  .dropzone {
+    border: 1.5px dashed var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 40px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .dropzone:hover, .dropzone.dragover {
+    border-color: var(--accent);
+    background: rgba(79, 138, 255, 0.04);
+  }
+
+  .dropzone input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+  }
+
+  .dropzone-icon { font-size: 28px; margin-bottom: 10px; }
+
+  .dropzone p { font-size: 13px; color: var(--text2); }
+  .dropzone span { font-size: 12px; color: var(--text3); }
+
+  .field-group { display: flex; flex-direction: column; gap: 8px; }
+
+  .field-label {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: var(--mono);
+  }
+
+  .field-input {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  .field-input:focus { border-color: var(--accent); }
+  .field-input::placeholder { color: var(--text3); }
+
+  .verify-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    border: none;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 16px;
+  }
+
+  .verify-btn:hover { background: #3d7aff; }
+
+  .verify-result {
+    display: none;
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .verify-result.valid {
+    background: rgba(34, 211, 165, 0.08);
+    border: 1px solid rgba(34, 211, 165, 0.2);
+    color: var(--green);
+    display: block;
+  }
+
+  .verify-result.invalid {
+    background: rgba(240, 92, 106, 0.08);
+    border: 1px solid rgba(240, 92, 106, 0.2);
+    color: var(--red);
+    display: block;
+  }
+
+  .result-label { font-weight: 500; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .result-detail { font-family: var(--mono); font-size: 11px; opacity: 0.75; }
+
+  /* ── NOTIFICATIONS ── */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .toast {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .toast.success { border-left: 3px solid var(--green); }
+  .toast.error { border-left: 3px solid var(--red); }
+  .toast.info { border-left: 3px solid var(--accent); }
+
+  /* loading */
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+
+  .status-bar {
+    padding: 6px 32px;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    font-family: var(--mono);
+    color: var(--text3);
+    display: flex;
+    gap: 24px;
+  }
+
+  .status-item { display: flex; align-items: center; gap: 6px; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
+  .status-dot.online { background: var(--green); }
+
+  /* overflow scroll */
+  .panel-scroll { overflow-y: auto; height: 100%; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⛓</div>
+    AcadChain <span>/ Étudiant</span>
+  </div>
+
+  <nav class="nav-tabs">
+    <button class="nav-tab active" onclick="switchTab('chat')">💬 Assistant IA</button>
+    <button class="nav-tab" onclick="switchTab('announcements')">📢 Annonces</button>
+    <button class="nav-tab" onclick="switchTab('verify')">🔍 Vérifier</button>
+  </nav>
+
+  <button class="wallet-btn" id="walletBtn" onclick="connectWallet()">
+    <span class="wallet-dot" id="walletDot"></span>
+    <span id="walletLabel">Connecter MetaMask</span>
+  </button>
+</header>
+
+<div class="main">
+
+  <!-- CHAT PANEL -->
+  <div class="panel active" id="panel-chat">
+    <div class="chat-container">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-empty" id="chatEmpty">
+          <div class="chat-empty-icon">🤖</div>
+          <h3>Assistant académique</h3>
+          <p>Posez vos questions sur les annonces, examens, ou délais de votre cours.</p>
+          <div class="suggestions">
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">Quand est le prochain examen ?</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">Quels exercices sont à rendre ?</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">Y a-t-il cours cette semaine ?</span>
+            <span class="suggestion-chip" onclick="sendSuggestion(this)">Documents disponibles ?</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="chat-input-row">
+          <textarea
+            class="chat-input"
+            id="chatInput"
+            placeholder="Posez votre question..."
+            rows="1"
+            onkeydown="handleInputKey(event)"
+            oninput="autoResize(this)"
+          ></textarea>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13M22 2L15 22l-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANNOUNCEMENTS PANEL -->
+  <div class="panel" id="panel-announcements">
+    <div class="panel-scroll">
+      <div class="panel-inner">
+        <div class="panel-header">
+          <h2 class="panel-title">Annonces</h2>
+          <div class="filter-chips">
+            <button class="filter-chip active" onclick="filterAnn('all', this)">Toutes</button>
+            <button class="filter-chip" onclick="filterAnn('exam', this)">Examens</button>
+            <button class="filter-chip" onclick="filterAnn('homework', this)">Devoirs</button>
+            <button class="filter-chip" onclick="filterAnn('schedule', this)">Emploi du temps</button>
+          </div>
+        </div>
+
+        <div class="announcements-list" id="annList">
+          <div class="empty-state">Connectez votre wallet pour voir les annonces</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERIFY PANEL -->
+  <div class="panel" id="panel-verify">
+    <div class="panel-scroll">
+      <div class="verify-inner">
+        <h1 class="verify-title">Vérification d'intégrité</h1>
+        <p class="verify-sub">Vérifiez qu'un document ou une annonce n'a pas été modifié depuis son enregistrement sur la blockchain.</p>
+
+        <!-- Verify document -->
+        <div class="verify-section">
+          <h3>📄 Document</h3>
+          <div class="dropzone" id="dropzone">
+            <input type="file" id="docFile" onchange="handleFileSelect(event)">
+            <div class="dropzone-icon">📁</div>
+            <p>Déposez votre fichier ou cliquez pour sélectionner</p>
+            <span id="dropzoneLabel">Tout type de fichier accepté</span>
+          </div>
+
+          <div style="display: flex; gap: 12px; margin-top: 16px;">
+            <div class="field-group" style="flex:1">
+              <label class="field-label">ID du document</label>
+              <input class="field-input" id="docId" type="number" min="0" placeholder="0">
+            </div>
+          </div>
+
+          <button class="verify-btn" onclick="verifyDocument()">Vérifier le document</button>
+          <div class="verify-result" id="docResult"></div>
+        </div>
+
+        <!-- Verify announcement -->
+        <div class="verify-section">
+          <h3>📢 Annonce</h3>
+          <div class="field-group" style="margin-bottom: 12px;">
+            <label class="field-label">ID de l'annonce</label>
+            <input class="field-input" id="annId" type="number" min="0" placeholder="0">
+          </div>
+          <div class="field-group">
+            <label class="field-label">Contenu de l'annonce</label>
+            <textarea class="field-input" id="annContent" rows="4" placeholder="Collez ici le texte exact de l'annonce..."></textarea>
+          </div>
+          <button class="verify-btn" onclick="verifyAnnouncement()">Vérifier l'annonce</button>
+          <div class="verify-result" id="annResult"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="status-bar">
+  <div class="status-item">
+    <span class="status-dot" id="rpcDot"></span>
+    <span id="rpcStatus">RPC : non connecté</span>
+  </div>
+  <div class="status-item">
+    <span id="groupStatus">Groupe : —</span>
+  </div>
+  <div class="status-item">
+    <span id="blockStatus">Bloc : —</span>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+  /// ── CONFIG ──────────────────────────────────────────────────────────────────
+const API = 'http://localhost:3001/api';
+const GROUP_ALL = '0x2f5b9e0d75b9e0d75b9e0d75b9e0d75b9e0d75b9e0d75b9e0d75b9e0d75b9e0d7';
+
+// ── STATE ───────────────────────────────────────────────────────────────────
+let walletAddress = null;
+let currentFilter = 'all';
+let allAnnouncements = [];
+let acknowledgedStatus = {};
+
+// ── WALLET ──────────────────────────────────────────────────────────────────
+async function connectWallet() {
+    if (!window.ethereum) {
+        toast('MetaMask non détecté', 'error');
+        return;
+    }
+
+    try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        walletAddress = accounts[0];
+
+        const btn = document.getElementById('walletBtn');
+        btn.classList.add('connected');
+        document.getElementById('walletDot').style.background = 'var(--green)';
+        document.getElementById('walletLabel').textContent =
+            walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
+
+        toast('Wallet connecté', 'success');
+        
+        await loadAnnouncements();
+        await updateStatusBar();
+        await checkAllAckStatus();
+
+        window.ethereum.on('accountsChanged', (accounts) => {
+            walletAddress = accounts[0] || null;
+            if (walletAddress) {
+                document.getElementById('walletLabel').textContent =
+                    walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
+                loadAnnouncements();
+                checkAllAckStatus();
+            }
+        });
+
+    } catch (err) {
+        toast('Connexion refusée : ' + err.message, 'error');
+    }
+}
+
+// ── TABS ────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('panel-' + tab).classList.add('active');
+    event.target.classList.add('active');
+
+    if (tab === 'announcements' && walletAddress) {
+        loadAnnouncements();
+    }
+}
+
+// ── STATUS BAR ──────────────────────────────────────────────────────────────
+async function updateStatusBar() {
+    try {
+        const res = await fetch(API.replace('/api', '/'));
+        if (res.ok) {
+            document.getElementById('rpcDot').classList.add('online');
+            document.getElementById('rpcStatus').textContent = 'Backend : connecté';
+        }
+    } catch {}
+
+    if (walletAddress) {
+        try {
+            const anns = await (await fetch(`${API}/announcements`, {
+                headers: { 'x-wallet-address': walletAddress }
+            })).json();
+            document.getElementById('blockStatus').textContent =
+                `${anns.length} annonce${anns.length > 1 ? 's' : ''}`;
+        } catch {}
+    }
+}
+
+// ── CHAT ────────────────────────────────────────────────────────────────────
+function handleInputKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+}
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+}
+
+function sendSuggestion(el) {
+    document.getElementById('chatInput').value = el.textContent;
+    sendMessage();
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const question = input.value.trim();
+    if (!question) return;
+
+    if (!walletAddress) {
+        toast('Connectez d\'abord votre wallet MetaMask', 'error');
+        return;
+    }
+
+    const emptyDiv = document.getElementById('chatEmpty');
+    if (emptyDiv) emptyDiv.style.display = 'none';
+
+    appendMessage('user', question);
+    input.value = '';
+    input.style.height = 'auto';
+
+    const typingId = appendTyping();
+    document.getElementById('sendBtn').disabled = true;
+
+    try {
+        const res = await fetch(`${API}/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-wallet-address': walletAddress
+            },
+            body: JSON.stringify({ question })
+        });
+
+        const data = await res.json();
+        removeTyping(typingId);
+
+        if (res.ok) {
+            appendMessage('assistant', data.answer);
+        } else {
+            appendMessage('assistant', '⚠️ Erreur : ' + (data.error || 'Réponse indisponible'));
+        }
+    } catch (err) {
+        removeTyping(typingId);
+        appendMessage('assistant', '⚠️ Impossible de joindre le backend. Vérifiez que le serveur tourne sur le port 3001.');
+    }
+
+    document.getElementById('sendBtn').disabled = false;
+}
+
+function appendMessage(role, text) {
+    const container = document.getElementById('chatMessages');
+    const time = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+
+    div.innerHTML = `
+        <div class="msg-bubble">${escapeHtml(text).replace(/\n/g, '<br>')}</div>
+        <span class="msg-meta">${time}</span>
+    `;
+
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+}
+
+function appendTyping() {
+    const container = document.getElementById('chatMessages');
+    const id = 'typing-' + Date.now();
+    const div = document.createElement('div');
+    div.className = 'msg assistant';
+    div.id = id;
+    div.innerHTML = `
+        <div class="msg-typing">
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+            <span class="typing-dot"></span>
+        </div>
+    `;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    return id;
+}
+
+function removeTyping(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
+}
+
+// ── ANNOUNCEMENTS ───────────────────────────────────────────────────────────
+// Dans student.html - remplacez la fonction loadAnnouncements
+async function loadAnnouncements() {
+    if (!walletAddress) return;
+    const list = document.getElementById('annList');
+    list.innerHTML = '<div class="empty-state"><div class="spinner" style="margin: 0 auto 8px;"></div>Chargement...</div>';
+
+    try {
+        const res = await fetch(`${API}/announcements`, {
+            headers: { 'x-wallet-address': walletAddress }
+        });
+        
+        if (!res.ok) throw new Error('Failed to fetch');
+        
+        const response = await res.json();
+        
+        // La réponse peut être un tableau ou un objet avec announcements
+        let data = [];
+        let userRole = 'NONE';
+        let userGroup = '';
+        
+        if (Array.isArray(response)) {
+            // Ancien format
+            data = response;
+        } else {
+            // Nouveau format
+            data = response.announcements || [];
+            userRole = response.role || 'NONE';
+            userGroup = response.group || '';
+        }
+        
+        console.log('Role reçu:', userRole);
+        console.log('Groupe reçu:', userGroup);
+        
+        // Mettre à jour l'affichage du groupe
+        const groupStatus = document.getElementById('groupStatus');
+        if (userRole === 'STUDENT') {
+            groupStatus.textContent = `Groupe : ${userGroup === GROUP_ALL ? 'Tous' : userGroup.slice(0, 10) + '...'}`;
+            toast('✅ Wallet Étudiant connecté', 'success');
+        } else if (userRole === 'PROFESSOR') {
+            groupStatus.textContent = 'Groupe : Professeur (interface non adaptée)';
+            toast('⚠️ Ce wallet a le rôle Professeur. Utilisez professor.html', 'warning');
+        } else {
+            groupStatus.textContent = 'Groupe : Non assigné';
+            toast('⚠️ Ce wallet n\'a pas de rôle étudiant', 'warning');
+        }
+
+        allAnnouncements = data.map((ann, index) => ({
+            ...ann,
+            id: ann.id !== undefined && ann.id !== null ? ann.id : index,
+            content: ann.content || 'Contenu non disponible'
+        }));
+        
+        renderAnnouncements();
+
+        document.getElementById('blockStatus').textContent =
+            `${allAnnouncements.length} annonce${allAnnouncements.length > 1 ? 's' : ''}`;
+
+    } catch (err) {
+        console.error('Erreur:', err);
+        list.innerHTML = `<div class="empty-state">⚠️ Erreur de chargement : ${err.message}</div>`;
+    }
+}
+
+function renderAnnouncements() {
+    const list = document.getElementById('annList');
+    const filtered = currentFilter === 'all'
+        ? allAnnouncements
+        : allAnnouncements.filter(a => a.category === currentFilter);
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty-state">Aucune annonce trouvée</div>';
+        return;
+    }
+
+    const sorted = [...filtered].sort((a, b) => b.timestamp - a.timestamp);
+
+    list.innerHTML = sorted.map(ann => {
+        const date = new Date(ann.timestamp * 1000).toLocaleDateString('fr-FR', {
+            day: 'numeric', month: 'short', year: 'numeric'
+        });
+        const hashShort = ann.contentHash ? ann.contentHash.slice(0, 18) + '...' : '—';
+        const isAcknowledged = acknowledgedStatus[ann.id] === true;
+        const announcementId = ann.id; // Now guaranteed to have a value
+
+        return `
+            <div class="ann-card" data-cat="${ann.category}" data-id="${announcementId}">
+                <div class="ann-header">
+                    <span class="ann-cat ${ann.category}">${ann.category}</span>
+                    <span class="ann-group">${groupLabel(ann.group)}</span>
+                </div>
+                <div class="ann-content">
+                    ${escapeHtml(ann.content || 'Contenu non disponible')}
+                </div>
+                <div class="ann-footer">
+                    <div class="ann-meta">
+                        <span>📅 ${date}</span>
+                        <span>#${announcementId}</span>
+                    </div>
+                    <button class="ack-btn ${isAcknowledged ? 'done' : 'pending'}" 
+                            id="ack-btn-${announcementId}" 
+                            onclick="acknowledge(${announcementId})"
+                            ${isAcknowledged ? 'disabled' : ''}>
+                        ${isAcknowledged ? '✅ Lu et confirmé' : '✍️ J\'ai lu'}
+                    </button>
+                </div>
+                <div class="hash-mini">
+                    🔗 <span title="${ann.contentHash}">${hashShort}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function groupLabel(groupHex) {
+    if (!groupHex || groupHex === '0x0000000000000000000000000000000000000000000000000000000000000000') {
+        return 'Tous';
+    }
+    return 'Groupe';
+}
+
+function filterAnn(cat, el) {
+    currentFilter = cat;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderAnnouncements();
+}
+
+async function checkAllAckStatus() {
+    if (!walletAddress) return;
+    
+    for (const ann of allAnnouncements) {
+        await checkAckStatus(ann.id);
+    }
+}
+
+async function checkAckStatus(annId) {
+    if (!walletAddress || annId === undefined) return;
+    try {
+        const res = await fetch(`${API}/acknowledge/${annId}/status`, {
+            headers: { 'x-wallet-address': walletAddress }
+        });
+        const data = await res.json();
+        if (data.acknowledged) {
+            acknowledgedStatus[annId] = true;
+            const btn = document.getElementById(`ack-btn-${annId}`);
+            if (btn) {
+                btn.className = 'ack-btn done';
+                btn.innerHTML = '✅ Lu et confirmé';
+                btn.disabled = true;
+                btn.onclick = null;
+            }
+        }
+    } catch (err) {
+        console.error('Error checking ack status:', err);
+    }
+}
+
+// AcknowledgmentLog contract address (from your deployment)
+const ACKNOWLEDGMENT_LOG_ADDRESS = '0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e';
+
+// Encode acknowledge(uint256) calldata
+function encodeAcknowledge(announcementId) {
+    // FIX: Ensure announcementId is a valid number
+    const id = BigInt(announcementId);
+    const selector = '2de5aaf7';
+    const idHex = id.toString(16).padStart(64, '0');
+    return '0x' + selector + idHex;
+}
+
+async function acknowledge(annId) {
+    if (!walletAddress) {
+        toast('Connectez votre wallet d\'abord', 'error');
+        return;
+    }
+    
+    const btn = document.getElementById(`ack-btn-${annId}`);
+    if (!btn || btn.disabled) return;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Préparation...';
+
+    try {
+        const prepareRes = await fetch(`${API}/transactions/prepare/acknowledge/${annId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-wallet-address': walletAddress
+            }
+        });
+
+        const prepareData = await prepareRes.json();
+        
+        if (!prepareRes.ok) {
+            throw new Error(prepareData.error || 'Failed to prepare');
+        }
+
+        btn.innerHTML = '<span class="spinner"></span> Signature MetaMask...';
+
+        // AUGMENTER LE GAZ - 300,000 au lieu de 100,000
+        const txHash = await window.ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [{
+                from: walletAddress,
+                to: prepareData.to,
+                data: prepareData.data,
+                value: prepareData.value || '0x0',
+                gas: '0x493E0'  // 300,000 en hexadécimal (300000)
+            }]
+        });
+
+        btn.innerHTML = '<span class="spinner"></span> Confirmation...';
+
+        const confirmRes = await fetch(`${API}/acknowledge/${annId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'x-wallet-address': walletAddress
+            },
+            body: JSON.stringify({ txHash })
+        });
+
+        if (confirmRes.ok) {
+            acknowledgedStatus[annId] = true;
+            btn.className = 'ack-btn done';
+            btn.innerHTML = '✅ Lu et confirmé';
+            btn.disabled = true;
+            toast('✅ Acquittement enregistré !', 'success');
+        } else {
+            const data = await confirmRes.json();
+            throw new Error(data.error);
+        }
+    } catch (err) {
+        btn.disabled = false;
+        btn.className = 'ack-btn pending';
+        btn.innerHTML = '✍️ J\'ai lu';
+        
+        if (err.code === 4001) {
+            toast('Transaction refusée', 'error');
+        } else if (err.message?.includes('out of gas')) {
+            toast('Gaz insuffisant - réessayez', 'error');
+        } else {
+            toast('Erreur: ' + (err.message || 'Échec'), 'error');
+        }
+    }
+}
+// ── VERIFY PANEL ────────────────────────────────────────────────────────────
+let selectedFileBuffer = null;
+
+function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    document.getElementById('dropzoneLabel').textContent = `📎 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+        selectedFileBuffer = ev.target.result;
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+const dropzone = document.getElementById('dropzone');
+if (dropzone) {
+    dropzone.addEventListener('dragover', e => { 
+        e.preventDefault(); 
+        dropzone.classList.add('dragover'); 
+    });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (file) {
+            document.getElementById('dropzoneLabel').textContent = `📎 ${file.name}`;
+            const reader = new FileReader();
+            reader.onload = ev => { selectedFileBuffer = ev.target.result; };
+            reader.readAsArrayBuffer(file);
+        }
+    });
+}
+
+async function verifyDocument() {
+    const id = document.getElementById('docId').value;
+    const result = document.getElementById('docResult');
+
+    if (!selectedFileBuffer) { toast('Sélectionnez un fichier', 'error'); return; }
+    if (!id) { toast('Entrez un ID de document', 'error'); return; }
+
+    const hashBuffer = await crypto.subtle.digest('SHA-256', selectedFileBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = '0x' + hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    result.className = 'verify-result';
+    result.innerHTML = '<div class="spinner" style="margin:0 auto"></div>';
+    result.style.display = 'flex';
+
+    try {
+        const res = await fetch(`${API}/verify/document/${id}?hash=${hashHex}`);
+        const data = await res.json();
+
+        if (data.valid === true || data.isValid === true) {
+            result.className = 'verify-result valid';
+            result.innerHTML = `
+                <div class="result-label">✅ Document intègre</div>
+                <div class="result-detail">Le hash correspond à l'enregistrement blockchain (doc #${id})</div>
+                <div class="result-detail" style="margin-top:4px">Hash : ${hashHex.slice(0, 30)}...</div>
+            `;
+        } else {
+            result.className = 'verify-result invalid';
+            result.innerHTML = `
+                <div class="result-label">❌ Document modifié</div>
+                <div class="result-detail">Le hash ne correspond pas. Ce fichier a peut-être été altéré.</div>
+            `;
+        }
+    } catch (err) {
+        result.className = 'verify-result invalid';
+        result.innerHTML = `<div class="result-label">⚠️ Erreur : ${err.message}</div>`;
+    }
+}
+
+async function verifyAnnouncement() {
+    const id = document.getElementById('annId').value;
+    const content = document.getElementById('annContent').value.trim();
+    const result = document.getElementById('annResult');
+
+    if (!id) { toast('Entrez un ID d\'annonce', 'error'); return; }
+    if (!content) { toast('Entrez le contenu de l\'annonce', 'error'); return; }
+
+    result.className = 'verify-result';
+    result.innerHTML = '<div class="spinner" style="margin:0 auto"></div>';
+    result.style.display = 'flex';
+
+    try {
+        const res = await fetch(`${API}/verify/announcement/${id}?content=${encodeURIComponent(content)}`);
+        const data = await res.json();
+
+        if (data.valid === true || data.isValid === true) {
+            result.className = 'verify-result valid';
+            result.innerHTML = `
+                <div class="result-label">✅ Annonce authentique</div>
+                <div class="result-detail">Le contenu correspond à l'enregistrement blockchain (annonce #${id})</div>
+                <div class="result-detail" style="margin-top:4px">Hash : ${data.hash ? data.hash.slice(0, 30) + '...' : '—'}</div>
+            `;
+        } else {
+            result.className = 'verify-result invalid';
+            result.innerHTML = `
+                <div class="result-label">❌ Contenu non conforme</div>
+                <div class="result-detail">Ce texte ne correspond pas à l'annonce #${id} enregistrée on-chain.</div>
+            `;
+        }
+    } catch (err) {
+        result.className = 'verify-result invalid';
+        result.innerHTML = `<div class="result-label">⚠️ Erreur : ${err.message}</div>`;
+    }
+}
+
+// ── UTILS ────────────────────────────────────────────────────────────────────
+function toast(msg, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = 'toast ' + type;
+    el.innerHTML = `<span>${msg}</span>`;
+    container.appendChild(el);
+    setTimeout(() => el.remove(), 4000);
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
+// Check if already connected on load
+window.addEventListener('load', async () => {
+    if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+            walletAddress = accounts[0];
+            const btn = document.getElementById('walletBtn');
+            btn.classList.add('connected');
+            document.getElementById('walletDot').style.background = 'var(--green)';
+            document.getElementById('walletLabel').textContent =
+                walletAddress.slice(0, 6) + '...' + walletAddress.slice(-4);
+            await loadAnnouncements();
+            await updateStatusBar();
+            await checkAllAckStatus();
+        }
+    }
+});
+</script>
+</script>
+</body>
+</html>
